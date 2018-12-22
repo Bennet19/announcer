@@ -1,0 +1,4 @@
+name: ${project.artifactId}
+main: your.class
+version: ${project.version}-b${build.number}
+softdepend: [Core]
