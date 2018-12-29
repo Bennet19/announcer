@@ -37,4 +37,4 @@ public class AnnounceAdd
     this.plugin.getConfigStorage().addAnnouncement(announcement);
     sender.sendMessage(FontFormat.translateString("&aThe announcement has been added!"));
   }
-}
+}]

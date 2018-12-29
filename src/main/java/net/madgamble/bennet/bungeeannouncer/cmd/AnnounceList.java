@@ -44,5 +44,5 @@ public class AnnounceList
     }
     sender.sendMessage(FontFormat.translateString("&a-----------------------------------------------------\n"));
   }
-}
+}]
 

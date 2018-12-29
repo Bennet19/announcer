@@ -48,5 +48,5 @@ public class AnnounceTask
       this.counter = 0;
     }
   }
-}
+}]
 
