@@ -37,7 +37,8 @@ extends Config
     }
   }
   
-  public void removeAnnouncement(CommandSender sender, Integer id)
+  @SuppressWarnings("deprecation")
+public void removeAnnouncement(CommandSender sender, Integer id)
   {
     if ((id.intValue() > this.announcements_global.size() - 1) || (id.intValue() < 0))
     {
