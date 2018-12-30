@@ -87,4 +87,4 @@ public void removeAnnouncement(CommandSender sender, Integer id)
       }
     }
   }
-}]
+}

@@ -62,5 +62,5 @@ public class BungeeAnnouncer
   {
     return this.task;
   }
-}}
+}
 
