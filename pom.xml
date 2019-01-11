@@ -59,12 +59,6 @@
 	</repositories>
 	<dependencies>
 		<dependency>
-			<groupId>org.spigotmc</groupId>
-			<artifactId>spigot-api</artifactId>
-			<version>${project.spigot.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>net.md-5</groupId>
 			<artifactId>bungeecord-proxy</artifactId>
 			<version>1.10-SNAPSHOT</version>
@@ -72,7 +66,13 @@
 		</dependency>
 		<dependency>
 			<groupId>net.madgamble</groupId>
-			<artifactId>core-api-bukkit</artifactId>
+			<artifactId>core-api-bungee</artifactId>
+			<version>GIT-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.madgamble</groupId>
+			<artifactId>core-plugin-common</artifactId>
 			<version>GIT-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>

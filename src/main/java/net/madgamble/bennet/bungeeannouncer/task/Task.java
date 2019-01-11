@@ -1,19 +1,17 @@
 package net.madgamble.bennet.bungeeannouncer.task;
 
-public class Task
-implements Runnable
-{
-private Integer pid;
+public class Task implements Runnable {
 
-public void run() {}
+	private Integer pid;
 
-public Integer getPid()
-{
-  return this.pid;
-}
+	public void run() {
+	}
 
-public void setPid(Integer pid)
-{
-  this.pid = pid;
-}
+	public Integer getPid() {
+		return this.pid;
+	}
+
+	public void setPid(Integer pid) {
+		this.pid = pid;
+	}
 }

@@ -1,52 +1,42 @@
 package net.madgamble.bennet.bungeeannouncer.task;
 
-import net.madgamble.bennet.bungeeannouncer.BungeeAnnouncer;
-import net.madgamble.bennet.bungeeannouncer.MainConfig;
-import net.madgamble.bennet.bungeeannouncer.utils.FontFormat;
-import java.util.ArrayList;
 import java.util.TimerTask;
+
+import net.madgamble.bennet.bungeeannouncer.BungeeAnnouncer;
+import net.madgamble.core.api.common.translation.T;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-public class AnnounceTask
-  extends TimerTask
-{
-  private int counter = 0;
-  private String prefix = "";
-  private ArrayList<String> announcements = new ArrayList();
-  
-  public AnnounceTask(BungeeAnnouncer plugin)
-  {
-    this.prefix = plugin.getConfigStorage().settings_prefix;
-    this.announcements = plugin.getConfigStorage().announcements_global;
-  }
-  
-  public void run()
-  {
-    if (this.announcements.size() > 0)
-    {
-      while (!((String)this.announcements.get(this.counter)).equals(")"))
-      {
-        for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
-          player.sendMessage(FontFormat.translateString(this.prefix + (String)this.announcements.get(this.counter)));
-        }
-        next();
-        if (this.counter == 0) {
-          break;
-        }
-      }
-      if (((String)this.announcements.get(this.counter)).equals(")")) {
-        next();
-      }
-    }
-  }
-  
-  public void next()
-  {
-    this.counter += 1;
-    if (this.counter == this.announcements.size()) {
-      this.counter = 0;
-    }
-  }
-}
+public class AnnouncerTask extends TimerTask {
 
+	private final BungeeAnnouncer plugin;
+	private int counter = 0;
+
+	public AnnouncerTask(BungeeAnnouncer plugin) {
+		this.plugin = plugin;
+	}
+
+	public void run() {
+		if (plugin.getAnnounceManager().getAnnouncer().size() < 1) {
+			return;
+		}
+		String announce = null;
+		while((announce = plugin.getAnnounceManager().getAnnounce(counter)) == null) {
+			next();
+		}
+		for (ProxiedPlayer p : ProxyServer.getInstance().getPlayers()) {
+			if (p.getName().equalsIgnoreCase("Heddo")) {
+				T.send("bungeeannouncer.announce", p, ChatColor.translateAlternateColorCodes('&', announce));
+			}
+		}
+		//T.broadcast("bungeeannouncer.announce", ChatColor.translateAlternateColorCodes('&', announce));
+	}
+
+	public void next() {
+		this.counter += 1;
+		if (this.counter == plugin.getAnnounceManager().getAnnouncer().size()) {
+			this.counter = 0;
+		}
+	}
+}

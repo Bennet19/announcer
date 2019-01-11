@@ -1,5 +1,5 @@
 name: ${project.artifactId}
-main: net.madgamble.bennet.BungeeAnnouncer
+main: net.madgamble.bennet.bungeeannouncer.BungeeAnnouncer
 version: ${project.version}-b${build.number}
 author: bennet
 softdepend: [Core]
