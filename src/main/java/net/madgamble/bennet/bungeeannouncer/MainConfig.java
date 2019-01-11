@@ -13,7 +13,7 @@ public class MainConfig {
 	private Configuration config;
 	private File file;
 	/**
-	 * in minutes
+	 * in seconds
 	 */
 	@Getter
 	public int broadcastIntervall = 60;

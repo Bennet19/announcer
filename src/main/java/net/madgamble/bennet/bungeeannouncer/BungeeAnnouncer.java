@@ -35,7 +35,6 @@ public class BungeeAnnouncer extends Plugin {
 	private IMysqlConnector mysqlConnector;
 	
 	private ITransportManager transportManager;
-	private PacketReceiver packetReceiver;
 
 	private ISubscriptionManager<UUID, UpdatePacket> subscriptions;
 	private SubscriptionListener<UUID, UpdatePacket> listener;
@@ -77,8 +76,6 @@ public class BungeeAnnouncer extends Plugin {
 			}
 		});
 		
-		packetReceiver = new PacketReceiver(this);
-	//	transportManager.registerHandler("bungeeAnnouncer", packetReceiver);
 		registerCommands();
 		sendAnnouncement();
 	}
@@ -101,18 +98,13 @@ public class BungeeAnnouncer extends Plugin {
 		UUID uuid = UUID.randomUUID();
 		UpdatePacket packet = new UpdatePacket(uuid);
 		subscriptions.update(uuid, packet);
-		/*IPacket packet = transportManager.makePacket("bungeeAnnouncer");
-		ByteBuf buf = packet.getBuffer();
-		//transportManager.writeObject(buf, new CustomPacketMessage(packet));
-		packet.send();*/
 		getLogger().info("[OUT] -> " + packet.toString());
 	}
 
 	public void onDisable() {
 		this.timer.cancel();
 		this.task.cancel();
-		transportManager.removeHandler("bungeeAnnouncer", packetReceiver);
-		subscriptions.removeListener(listener );
+		subscriptions.removeListener(listener);
 	}
 
 	public void sendAnnouncement() {
