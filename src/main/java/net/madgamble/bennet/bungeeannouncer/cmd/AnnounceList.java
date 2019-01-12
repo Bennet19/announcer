@@ -1,8 +1,7 @@
 package net.madgamble.bennet.bungeeannouncer.cmd;
 
-import java.util.Map.Entry;
-
 import net.madgamble.bennet.bungeeannouncer.BungeeAnnouncer;
+import net.madgamble.bennet.bungeeannouncer.manager.Announce;
 import net.madgamble.bennet.bungeeannouncer.utils.FontFormat;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
@@ -25,10 +24,11 @@ public class AnnounceList extends Command {
 			sender.sendMessage(FontFormat.translateString("&7Usage: /announce_list"));
 			return;
 		}
-		sender.sendMessage(FontFormat.translateString("&a-----------------------------------------------------\n&eID - &fMessage"));
-		for (Entry<Integer, String> entry : plugin.getAnnounceManager().getAnnouncer().entrySet()) {
-			sender.sendMessage(FontFormat.translateString("&a" + entry.getKey() + " &7- &f" + entry.getValue()));
+		sender.sendMessage(FontFormat.translateString("&a-----------------------------------------------------"));
+		sender.sendMessage(FontFormat.translateString("&eID - &fMessage"));
+		for (Announce a : plugin.getAnnounceManager().getAnnouncer()) {
+			sender.sendMessage(FontFormat.translateString("&a" + a.getId() + " &7- &f" + a.getText()));
 		}
-		sender.sendMessage(FontFormat.translateString("&a-----------------------------------------------------\n"));
+		sender.sendMessage(FontFormat.translateString("&a-----------------------------------------------------"));
 	}
 }

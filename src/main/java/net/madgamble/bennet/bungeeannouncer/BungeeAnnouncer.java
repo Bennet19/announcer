@@ -3,24 +3,25 @@ package net.madgamble.bennet.bungeeannouncer;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import io.netty.buffer.ByteBuf;
+import com.flowpowered.network.Message;
+import com.flowpowered.network.MessageHandler;
+
 import lombok.Getter;
 import net.madgamble.bennet.bungeeannouncer.cmd.AnnounceAdd;
 import net.madgamble.bennet.bungeeannouncer.cmd.AnnounceList;
 import net.madgamble.bennet.bungeeannouncer.cmd.AnnounceRemove;
 import net.madgamble.bennet.bungeeannouncer.manager.AnnounceManager;
 import net.madgamble.bennet.bungeeannouncer.task.AnnouncerTask;
-import net.madgamble.core.api.bungee.BungeeCore;
 import net.madgamble.core.api.common.Core;
-import net.madgamble.core.api.common.transport.IObjectCodec;
 import net.madgamble.core.api.common.transport.ISubscriptionManager;
 import net.madgamble.core.api.common.transport.ISubscriptionManager.SubscriptionListener;
 import net.madgamble.core.api.common.transport.ITransportManager;
-import net.madgamble.core.api.common.transport.PacketUtil;
 import net.madgamble.core.db.mysql.IMysqlConnector;
+import net.madgamble.mgs.net.DynamicSession;
+import net.madgamble.mgs.net.client.MgsClient;
+import net.madgamble.mgs.net.messages.CustomPayloadMessage;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -39,6 +40,9 @@ public class BungeeAnnouncer extends Plugin {
 	private ISubscriptionManager<UUID, UpdatePacket> subscriptions;
 	private SubscriptionListener<UUID, UpdatePacket> listener;
 	
+	private MgsClient client;
+	private String tag = "bungeeAnnouncer";
+	private MessageHandler<DynamicSession, Message> handler;
 	
 	public void onEnable() {
 		try {
@@ -51,12 +55,32 @@ public class BungeeAnnouncer extends Plugin {
 		mysqlConnector = Core.getApi().getMysqlConnector("core");
 		
 		announceManager = new AnnounceManager(this);
+		client = MgsClient.getInstance();
+		client.addCustomPayloadTags(tag);
 		
-		transportManager = BungeeCore.getApi().getTransportManager();
-		transportManager.registerCodec(UpdatePacket.class, UPDATE_USER_CODEC);
-		transportManager.registerSubscribable(532, UUID.class, UpdatePacket.class);
+		MgsClient.addMessageHandler(client, handler = new MessageHandler<DynamicSession, Message>() {
+			
+			@Override
+			public void handle(DynamicSession session, Message rawMessage) {
+				getLogger().info("[IN] <- " + rawMessage.toString());
+				if (rawMessage instanceof CustomPayloadMessage) {
+					CustomPayloadMessage mess = (CustomPayloadMessage) rawMessage;
+					if (isIn(mess.getTags(), tag)) {
+						String s = (String) mess.getPayload().get(0, String.class);
+						if (s.equalsIgnoreCase("update")) {
+							announceManager.load();
+						}
+					}
+				}
+			}
+		});
 		
-		subscriptions = transportManager.getSubscriptionHandler(532);
+		/*transportManager = BungeeCore.getApi().getTransportManager();
+		if (transportManager.getCodec(UpdatePacket.class) == null) {
+			transportManager.registerCodec(UpdatePacket.class, UPDATE_USER_CODEC);
+			transportManager.registerSubscribable(534, UUID.class, UpdatePacket.class);
+		}
+		subscriptions = transportManager.getSubscriptionHandler(534);
 		subscriptions.setTimeoutAfterWrite(24, TimeUnit.HOURS);
 		try {
 			subscriptions.subscribe(null);
@@ -74,13 +98,22 @@ public class BungeeAnnouncer extends Plugin {
 			@Override
 			public void onDrop(UUID key) {
 			}
-		});
+		});*/
 		
 		registerCommands();
 		sendAnnouncement();
 	}
 	
-	final IObjectCodec<UpdatePacket> UPDATE_USER_CODEC = new IObjectCodec<UpdatePacket>() {
+	public boolean isIn(String[] array, String tag) {
+		for (String s : array) {
+			if (s.equals(tag)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/*final IObjectCodec<UpdatePacket> UPDATE_USER_CODEC = new IObjectCodec<UpdatePacket>() {
 
 		@Override
 		public void encode(ByteBuf buf, UpdatePacket object) throws IOException {
@@ -92,19 +125,22 @@ public class BungeeAnnouncer extends Plugin {
 			UUID id = PacketUtil.readUUID(buf);
 			return new UpdatePacket(id);
 		}
-	};
+	};*/
 	
 	public void sendUpdate() throws IOException, IllegalArgumentException {
-		UUID uuid = UUID.randomUUID();
+		/*UUID uuid = UUID.randomUUID();
 		UpdatePacket packet = new UpdatePacket(uuid);
-		subscriptions.update(uuid, packet);
+		subscriptions.update(uuid, packet);*/
+		CustomPayloadMessage packet = new CustomPayloadMessage(new String[] {tag});
+		packet.getPayload().put(0, "update", String.class);
+		client.controll().sendMessage(packet);
 		getLogger().info("[OUT] -> " + packet.toString());
 	}
 
 	public void onDisable() {
 		this.timer.cancel();
 		this.task.cancel();
-		subscriptions.removeListener(listener);
+		MgsClient.removeMessageHandler(client, handler);
 	}
 
 	public void sendAnnouncement() {

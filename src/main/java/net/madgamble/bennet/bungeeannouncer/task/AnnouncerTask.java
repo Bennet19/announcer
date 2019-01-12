@@ -3,10 +3,9 @@ package net.madgamble.bennet.bungeeannouncer.task;
 import java.util.TimerTask;
 
 import net.madgamble.bennet.bungeeannouncer.BungeeAnnouncer;
+import net.madgamble.bennet.bungeeannouncer.manager.Announce;
 import net.madgamble.core.api.common.translation.T;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class AnnouncerTask extends TimerTask {
 
@@ -21,22 +20,11 @@ public class AnnouncerTask extends TimerTask {
 		if (plugin.getAnnounceManager().getAnnouncer().size() < 1) {
 			return;
 		}
-		String announce = null;
-		while((announce = plugin.getAnnounceManager().getAnnounce(counter)) == null) {
-			next();
+		if (counter >= plugin.getAnnounceManager().getAnnouncer().size()) {
+			counter = 0;
 		}
-		for (ProxiedPlayer p : ProxyServer.getInstance().getPlayers()) {
-			if (p.getName().equalsIgnoreCase("Heddo")) {
-				T.send("bungeeannouncer.announce", p, ChatColor.translateAlternateColorCodes('&', announce));
-			}
-		}
-		//T.broadcast("bungeeannouncer.announce", ChatColor.translateAlternateColorCodes('&', announce));
-	}
-
-	public void next() {
-		this.counter += 1;
-		if (this.counter == plugin.getAnnounceManager().getAnnouncer().size()) {
-			this.counter = 0;
-		}
+		Announce announce = plugin.getAnnounceManager().getAnnouncer().get(counter);
+		T.broadcast("bungeeannouncer.announce", ChatColor.translateAlternateColorCodes('&', announce.getText()));
+		counter++;
 	}
 }

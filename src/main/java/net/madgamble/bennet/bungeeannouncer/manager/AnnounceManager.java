@@ -4,8 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 import lombok.Getter;
@@ -15,7 +15,7 @@ import net.madgamble.core.db.mysql.IMysqlConnector;
 public class AnnounceManager {
 
 	@Getter
-	private final Map<Integer, String> announcer = new HashMap<Integer, String>();
+	private final List<Announce> announcer = new ArrayList<Announce>();
 	private final BungeeAnnouncer plugin;
 	private final IMysqlConnector mysqlConnector;
 
@@ -26,7 +26,7 @@ public class AnnounceManager {
 			//@formatter:off
 			mysqlConnector.getConnection().prepareStatement(
 					"CREATE TABLE IF NOT EXISTS `bungeeAnnouncer` (" + 
-					"`id` int(11) NOT NULL ," + 
+					"`id` int(11) NOT NULL AUTO_INCREMENT," + 
 					"`text`  varchar(256) NOT NULL," + 
 					"PRIMARY KEY (`id`)"+
 					");").executeUpdate();
@@ -44,7 +44,7 @@ public class AnnounceManager {
 			try (PreparedStatement ps = con.prepareCall("SELECT * FROM `bungeeAnnouncer`")) {
 				try (ResultSet rs = ps.executeQuery()) {
 					while(rs.next()) {
-						announcer.put(rs.getInt("id"), rs.getString("text"));
+						announcer.add(new Announce(rs.getInt("id"), rs.getString("text")));
 					}
 				}
 			}
@@ -53,44 +53,52 @@ public class AnnounceManager {
 		}
 	}
 
-	public String getAnnounce(int id) {
-		if (announcer.containsKey(id)) {
-			return announcer.get(id);
+	public Announce getAnnounce(int id) {
+		for (Announce a : announcer) {
+			if (a.getId() == id) {
+				return a;
+			}
 		}
 		return null;
 	}
-	
-	private Integer getNextId() {
-		int id = 0;
-		while (announcer.containsKey(id)) {
-			id++;
+
+	public void addAnnounce(String text) {
+		Announce a = new Announce(-1, text);
+		announcer.add(a);
+		a.setId(set(text));
+	}
+
+	public void updateAnnounce(int id, String text) {
+		if (getAnnounce(id) != null) {
+			announcer.get(id).setText(text);
+			update(id, text);
 		}
-		return id;
-	}
-
-	public void addAnnounce(String str) {
-		int id = getNextId();
-		announcer.put(id, str);
-		update(id, str);
-	}
-
-	public void updateAnnounce(int id, String str) {
-		announcer.put(id, str);
-		update(id, str);
 	}
 
 	public void deleteAnnounce(Integer id) {
-		if (announcer.containsKey(id)) {
-			announcer.remove(id);
+		if (getAnnounce(id) != null) {
+			announcer.remove(getAnnounce(id));
 			delete(id);
 		}
 	}
 
+	private int set(String str) {
+		try (Connection con = mysqlConnector.getConnection()) {
+			try (PreparedStatement ps = con.prepareCall("INSERT INTO `bungeeAnnouncer` (text) VALUES (?)")) {
+				ps.setString(1, str);
+				return ps.executeUpdate();
+			}
+		} catch (SQLException e) {
+			plugin.getLogger().log(Level.WARNING, "Could not execute update:", e);
+		}
+		return -1;
+	}
+
 	private void update(int id, String str) {
 		try (Connection con = mysqlConnector.getConnection()) {
-			try (PreparedStatement ps = con.prepareCall("INSERT INTO `bungeeAnnouncer` (id, text) VALUES (?, ?) ON DUPLICATE KEY UPDATE text=VALUES(text)")) {
-				ps.setInt(1, id);
-				ps.setString(2, str);
+			try (PreparedStatement ps = con.prepareCall("UPDATE `bungeeAnnouncer` SET text=? WHERE id=?")) {
+				ps.setString(1, str);
+				ps.setInt(2, id);
 				ps.executeUpdate();
 			}
 		} catch (SQLException e) {
