@@ -11,7 +11,7 @@ public class AnnounceList extends Command {
 	BungeeAnnouncer plugin;
 
 	public AnnounceList(BungeeAnnouncer plugin) {
-		super("announce_list");
+		super("announceliste");
 		this.plugin = plugin;
 	}
 
@@ -21,7 +21,7 @@ public class AnnounceList extends Command {
 			return;
 		}
 		if (args.length != 0) {
-			sender.sendMessage(FontFormat.translateString("&7Usage: /announce_list"));
+			sender.sendMessage(FontFormat.translateString("&7Benutze: /announcelist"));
 			return;
 		}
 		sender.sendMessage(FontFormat.translateString("&a-----------------------------------------------------"));

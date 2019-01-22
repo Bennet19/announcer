@@ -10,7 +10,7 @@ public class AnnounceRemove extends Command {
 	BungeeAnnouncer plugin;
 
 	public AnnounceRemove(BungeeAnnouncer plugin) {
-		super("announce_remove");
+		super("announcedelete");
 		this.plugin = plugin;
 	}
 
@@ -20,7 +20,7 @@ public class AnnounceRemove extends Command {
 			return;
 		}
 		if (args.length != 1) {
-			sender.sendMessage(FontFormat.translateString("&7Usage: /announce_remove <message>"));
+			sender.sendMessage(FontFormat.translateString("&7Benutze: /announcedelete <message>"));
 			return;
 		}
 		try {

@@ -10,7 +10,7 @@ public class AnnounceAdd extends Command {
 	BungeeAnnouncer plugin;
 
 	public AnnounceAdd(BungeeAnnouncer plugin) {
-		super("announce_add");
+		super("announceadd");
 		this.plugin = plugin;
 	}
 
@@ -20,7 +20,7 @@ public class AnnounceAdd extends Command {
 			return;
 		}
 		if (args.length < 1) {
-			sender.sendMessage(FontFormat.translateString("&7Usage: /announce_add <message>"));
+			sender.sendMessage(FontFormat.translateString("&7Benutze: /announceadd <message>"));
 			return;
 		}
 		String text = String.join(" ", args);
